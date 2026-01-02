@@ -192,7 +192,14 @@ async def start_health_server():
 
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", 8080)
+    # Increase max_line_size and max_field_size to handle large headers
+    site = web.TCPSite(
+        runner,
+        "0.0.0.0",
+        8080,
+        max_line_size=16384,  # Increase from default 8190
+        max_field_size=16384,
+    )  # Increase from default 8190
     await site.start()
     logger.info("Health check server started on port 8080")
 
