@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  yt-transcript-bot:
+    build: .
+    container_name: yt-transcript-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      # Optional: mount logs if you want to persist them
+      - ./logs:/app/logs
+    # Resource limits (optional but recommended)
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
