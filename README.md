@@ -68,18 +68,6 @@ python telegram_bot.py
 docker-compose up --build
 ```
 
-### Production Deployment
-
-See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for complete VPS deployment instructions.
-
-**Quick version:**
-```bash
-# On your VPS
-git clone https://github.com/Sheriff-Oladimeji/yt-bot.git
-cd yt-bot
-nano .env  # Add your token
-docker-compose up -d --build
-```
 
 ## Usage
 
@@ -210,7 +198,6 @@ MIT License - feel free to use for personal or commercial projects.
 ## Author
 
 **Sheriff Oladimeji** ([@Sheriff-Oladimeji](https://github.com/Sheriff-Oladimeji))
-- Founder of [Brikta](https://brikta.dev)
 
 ## Acknowledgments
 

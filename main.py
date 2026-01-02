@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """
 YouTube Transcript Telegram Bot
-Local version - runs on your computer
+With health check endpoint for monitoring
 """
 
 import re
 import logging
+import asyncio
+from aiohttp import web
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -26,6 +28,9 @@ logger = logging.getLogger(__name__)
 YOUTUBE_PATTERNS = [
     r"(https?://)?(www\.)?(youtube\.com|youtu\.be)/.+",
 ]
+
+# Global variable to track bot health
+bot_healthy = False
 
 
 def extract_video_id(url):
@@ -162,10 +167,42 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.error(f"Update {update} caused error {context.error}")
 
 
+# Health check endpoint for monitoring
+async def health_check(request):
+    """Health check endpoint for Uptime Kuma"""
+    if bot_healthy:
+        return web.Response(
+            text='{"status": "healthy", "service": "yt-transcript-bot"}',
+            status=200,
+            content_type="application/json",
+        )
+    else:
+        return web.Response(
+            text='{"status": "unhealthy", "service": "yt-transcript-bot"}',
+            status=503,
+            content_type="application/json",
+        )
+
+
+async def start_health_server():
+    """Start health check HTTP server"""
+    app = web.Application()
+    app.router.add_get("/health", health_check)
+    app.router.add_get("/", health_check)  # Root also works
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", 8080)
+    await site.start()
+    logger.info("Health check server started on port 8080")
+
+
 def main():
     """Start the bot"""
     import os
     from dotenv import load_dotenv
+
+    global bot_healthy
 
     # Load environment variables from .env file
     load_dotenv()
@@ -194,6 +231,7 @@ def main():
     print(f"Token: {TOKEN[:10]}...{TOKEN[-5:]}")
     print("\n📱 Bot is now running!")
     print("💡 Open Telegram and send a YouTube URL to your bot")
+    print("🏥 Health check available at http://localhost:8080/health")
     print("⚠️  Keep this terminal window open")
     print("🛑 Press Ctrl+C to stop\n")
     print("=" * 60 + "\n")
@@ -210,6 +248,13 @@ def main():
 
     # Add error handler
     application.add_error_handler(error_handler)
+
+    # Start health check server
+    loop = asyncio.get_event_loop()
+    loop.create_task(start_health_server())
+
+    # Mark bot as healthy once it starts
+    bot_healthy = True
 
     # Run the bot
     application.run_polling(allowed_updates=Update.ALL_TYPES)
