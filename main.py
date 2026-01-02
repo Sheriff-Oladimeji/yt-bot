@@ -190,16 +190,12 @@ async def start_health_server():
     app.router.add_get("/health", health_check)
     app.router.add_get("/", health_check)  # Root also works
 
-    runner = web.AppRunner(app)
-    await runner.setup()
-    # Increase max_line_size and max_field_size to handle large headers
-    site = web.TCPSite(
-        runner,
-        "0.0.0.0",
-        8080,
-        max_line_size=16384,  # Increase from default 8190
-        max_field_size=16384,
+    # Create runner with increased header size limits
+    runner = web.AppRunner(
+        app, max_line_size=16384, max_field_size=16384  # Increase from default 8190
     )  # Increase from default 8190
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", 8080)
     await site.start()
     logger.info("Health check server started on port 8080")
 
