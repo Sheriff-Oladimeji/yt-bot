@@ -1,20 +1,14 @@
-# Use official Python runtime as base image
 FROM python:3.11-slim
 
-# Set working directory in container
 WORKDIR /app
 
-# Copy everything from current directory to /app in container
-COPY . .
-
-# Install Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Set environment variables
+COPY . .
+
 ENV PYTHONUNBUFFERED=1
 
-# Expose health check port
-EXPOSE 8080
+EXPOSE 8000
 
-# Run the bot
-CMD ["python", "main.py"]
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]

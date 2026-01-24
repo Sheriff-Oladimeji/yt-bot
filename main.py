@@ -4,7 +4,6 @@ YouTube Transcript Telegram Bot
 With health check endpoint for monitoring
 """
 
-import re
 import logging
 import asyncio
 from aiohttp import web
@@ -17,6 +16,7 @@ from telegram.ext import (
     ContextTypes,
 )
 from youtube_transcript_api import YouTubeTranscriptApi
+from utils import extract_video_id, is_youtube_url
 
 # Enable logging
 logging.basicConfig(
@@ -24,35 +24,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# YouTube URL patterns
-YOUTUBE_PATTERNS = [
-    r"(https?://)?(www\.)?(youtube\.com|youtu\.be)/.+",
-]
-
 # Global variable to track bot health
 bot_healthy = False
-
-
-def extract_video_id(url):
-    """Extract video ID from various YouTube URL formats"""
-    patterns = [
-        r"(?:youtube\.com/watch\?v=|youtu\.be/)([^&\n?#]+)",
-        r"youtube\.com/embed/([^&\n?#]+)",
-    ]
-
-    for pattern in patterns:
-        match = re.search(pattern, url)
-        if match:
-            return match.group(1)
-    return None
-
-
-def is_youtube_url(text):
-    """Check if text contains a YouTube URL"""
-    for pattern in YOUTUBE_PATTERNS:
-        if re.search(pattern, text, re.IGNORECASE):
-            return True
-    return False
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):

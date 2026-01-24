@@ -1,23 +1,15 @@
 services:
-  yt-transcript-bot:
+  transcript-api:
     build: .
-    container_name: yt-transcript-bot
+    container_name: yt-transcript-api
     restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     ports:
-      - "8080:8080"  # Health check endpoint
-    volumes:
-      # Optional: mount logs if you want to persist them
-      - ./logs:/app/logs
-    # Resource limits (optional but recommended)
+      - "8000:8000"
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 256M
